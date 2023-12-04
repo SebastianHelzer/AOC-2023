@@ -1,16 +1,23 @@
+import kotlin.time.measureTime
+import kotlin.time.measureTimedValue
+
+typealias Position = Pair<Int, Int>
+typealias SymbolWithPosition = Pair<Position, Char>
+typealias NumberWithPositions = Pair<List<Position>, Int>
+
 fun main() {
 
-    fun getDigitsAndParts(input: List<String>): Pair<List<Triple<Int, Int, Char>>, List<Triple<Int, Int, Char>>> {
+    fun getDigitsAndParts(input: List<String>): Pair<List<SymbolWithPosition>, List<SymbolWithPosition>> {
         val digitsAndParts = input.mapIndexed { row, s ->
             s.mapIndexed { column, c ->
-                Triple(row, column, c)
+                Position(row, column) to c
             }
-        }.flatten().filter { it.third != '.' }
+        }.flatten().filter { it.second != '.' }
 
-        return digitsAndParts.partition { it.third.isDigit() }
+        return digitsAndParts.partition { it.second.isDigit() }
     }
 
-    fun positionsAroundPosition(position: Pair<Int, Int>): List<Pair<Int, Int>> {
+    fun positionsAroundPosition(position: Position): List<Position> {
         val (row, column) = position
         return listOf(
             row + 1 to column,
@@ -25,35 +32,34 @@ fun main() {
         )
     }
 
-    fun getNumbersAdjacentToParts(numbers: List<Pair<List<Pair<Int, Int>>, Int>>, input: List<Triple<Int, Int, Char>>) : List<Int> {
-        return numbers.filter {
-            val positionsToCheck = it.first.map { position ->
+    fun getNumbersAdjacentToParts(numbers: List<NumberWithPositions>, parts: List<SymbolWithPosition>) : List<Int> {
+        return numbers.filter { number ->
+            val positionsToCheck = number.first.map { position ->
                 positionsAroundPosition(position)
             }.flatten().toSet()
 
-            positionsToCheck.any { (row, colomn) ->
-                input.firstOrNull { it.first == row && it.second == colomn }?.third?.let {
+            positionsToCheck.any { (row, column) ->
+                parts.firstOrNull { it.first.first == row && it.first.second == column }?.second?.let {
                     !it.isDigit() && it != '.'
                 } ?: false
             }
         }.map { it.second }
     }
 
-    fun mapDigitsToNumbers(digits: List<Triple<Int, Int, Char>>): List<Pair<List<Pair<Int, Int>>, Int>> {
+    fun mapDigitsToNumbers(digits: List<SymbolWithPosition>): List<NumberWithPositions> {
         return digits.fold(listOf()) { acc, triple ->
-            val row = triple.first
-            val column = triple.second
-            val digit = triple.third.digitToInt()
+            val (row, column) = triple.first
+            val digit = triple.second.digitToInt()
             val lastEntry = acc.lastOrNull()
             val lastPosition = lastEntry?.first?.lastOrNull()
             lastPosition?.let { (lastRow, lastColumn) ->
                 if (lastRow == row && lastColumn == column - 1) {
                     val newValue = lastEntry.second * 10 + digit
-                    return@fold acc.dropLast(1).plus(lastEntry.first.plus(row to column) to newValue)
+                    return@fold acc.dropLast(1).plus(lastEntry.first.plus(triple.first) to newValue)
                 }
             }
 
-            acc.plus(listOf(triple.first to triple.second) to triple.third.digitToInt())
+            acc.plus(listOf(triple.first) to triple.second.digitToInt())
         }
     }
 
@@ -64,9 +70,9 @@ fun main() {
         return filteredNumbers.sum()
     }
 
-    fun getGearRatios(numbers: List<Pair<List<Pair<Int, Int>>, Int>>, parts: List<Triple<Int, Int, Char>>): List<Int> {
-        return parts.filter { it.third == '*' }.mapNotNull {
-            val positionsToCheck = positionsAroundPosition(it.first to it.second)
+    fun getGearRatios(numbers: List<NumberWithPositions>, parts: List<SymbolWithPosition>): List<Int> {
+        return parts.filter { it.second == '*' }.mapNotNull { part ->
+            val positionsToCheck = positionsAroundPosition(part.first)
             val closeNumbers = positionsToCheck.mapNotNull { position ->
                 numbers.firstOrNull { it.first.contains(position) }
             }.toSet().map { it.second }
@@ -85,8 +91,16 @@ fun main() {
         return gearRatios.sum()
     }
 
-    println(part1(readInput("Day03_test")))
-    println(part1(readInput("Day03")))
-    println(part2(readInput("Day03_test")))
-    println(part2(readInput("Day03")))
+    val testInput = readInput("Day03_test")
+    val warmUp = measureTime { (0..1000).map { it * it } }
+    println("warm up in $warmUp")
+    val part1TestTime = measureTimedValue { part1(testInput) }
+    println("Part 1 test ${part1TestTime.value} in ${part1TestTime.duration}")
+    val part2TestTime = measureTimedValue { part2(testInput) }
+    println("Part 2 test ${part2TestTime.value} in ${part2TestTime.duration}")
+    val input = readInput("Day03_test")
+    val part1Time = measureTimedValue { part1(input) }
+    println("Part 1 ${part1Time.value} in ${part1Time.duration}")
+    val part2Time = measureTimedValue { part2(input) }
+    println("Part 2 ${part2Time.value} in ${part2Time.duration}")
 }
