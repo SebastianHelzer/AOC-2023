@@ -1,9 +1,18 @@
-fun main() {
-    fun part1(input: List<String>): Int {
-        return input.sumOf { it.filter { it.isDigit() }.let { it.first().digitToInt()  * 10 + it.last().digitToInt() } }
+import java.lang.Exception
+
+class Day01: DayXX() {
+    override val dayNumber: Int = 1
+    override val dayString: String = "01"
+
+    override fun part1(input: List<String>): Int {
+        return try {
+            input.sumOf { it.filter { it.isDigit() }.let { it.first().digitToInt()  * 10 + it.last().digitToInt() } }
+        } catch (e: Exception) {
+            0
+        }
     }
 
-    fun part2(input: List<String>): Int {
+    override fun part2(input: List<String>): Int {
         val replacementList = mapOf(
             "zero" to 0,
             "one" to 1,
@@ -22,11 +31,8 @@ fun main() {
             modifiedInput.filter { it.isDigit() }.let { it.first().digitToInt()  * 10 + it.last().digitToInt() }
         }
     }
+}
 
-    check(part1(readInput("Day01_test")) == 142)
-    check(part2(readInput("Day01_test2")) == 281)
-
-    val input = readInput("Day01")
-    part1(input).println()
-    part2(input).println()
+fun main() {
+    Day01().runTest(listOf("_test", "_test2", ""))
 }

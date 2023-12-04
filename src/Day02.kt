@@ -1,4 +1,6 @@
-fun main() {
+class Day02: DayXX() {
+    override val dayNumber: Int = 2
+    override val dayString: String = "02"
 
     val redLimit = 12
     val greenLimit = 13
@@ -34,7 +36,7 @@ fun main() {
         return gameRounds to gameId
     }
 
-    fun part1(input: List<String>): Int {
+    override fun part1(input: List<String>): Int {
         return input
             .mapNotNull {
                 val (gameRounds, gameId) = getGameRoundsAndGameId(it)
@@ -55,15 +57,14 @@ fun main() {
         return maxRed * maxBlue * maxGreen
     }
 
-    fun part2(input: List<String>): Int {
+    override fun part2(input: List<String>): Int {
         return input.sumOf {
             val (gameRounds, _) = getGameRoundsAndGameId(it)
             getGamePower(gameRounds)
         }
     }
+}
 
-    check(part1(readInput("Day02_test")) == 8)
-    println(part1(readInput("Day02")))
-    check(part2(readInput("Day02_test")) == 2286)
-    println(part2(readInput("Day02")))
+fun main() {
+    Day02().runTest()
 }

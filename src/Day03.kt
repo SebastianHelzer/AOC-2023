@@ -5,7 +5,9 @@ typealias Position = Pair<Int, Int>
 typealias SymbolWithPosition = Pair<Position, Char>
 typealias NumberWithPositions = Pair<List<Position>, Int>
 
-fun main() {
+class Day03: DayXX() {
+    override val dayNumber: Int = 3
+    override val dayString: String = "03"
 
     fun getDigitsAndParts(input: List<String>): Pair<List<SymbolWithPosition>, List<SymbolWithPosition>> {
         val digitsAndParts = input.mapIndexed { row, s ->
@@ -63,7 +65,7 @@ fun main() {
         }
     }
 
-    fun part1(input: List<String>): Int {
+    override fun part1(input: List<String>): Int {
         val (digits, parts) = getDigitsAndParts(input)
         val numbers = mapDigitsToNumbers(digits)
         val filteredNumbers = getNumbersAdjacentToParts(numbers, parts)
@@ -84,23 +86,14 @@ fun main() {
         }
     }
 
-    fun part2(input: List<String>): Int {
+    override fun part2(input: List<String>): Int {
         val (digits, parts) = getDigitsAndParts(input)
         val numbers = mapDigitsToNumbers(digits)
         val gearRatios = getGearRatios(numbers, parts)
         return gearRatios.sum()
     }
+}
 
-    val testInput = readInput("Day03_test")
-    val warmUp = measureTime { (0..1000).map { it * it } }
-    println("warm up in $warmUp")
-    val part1TestTime = measureTimedValue { part1(testInput) }
-    println("Part 1 test ${part1TestTime.value} in ${part1TestTime.duration}")
-    val part2TestTime = measureTimedValue { part2(testInput) }
-    println("Part 2 test ${part2TestTime.value} in ${part2TestTime.duration}")
-    val input = readInput("Day03_test")
-    val part1Time = measureTimedValue { part1(input) }
-    println("Part 1 ${part1Time.value} in ${part1Time.duration}")
-    val part2Time = measureTimedValue { part2(input) }
-    println("Part 2 ${part2Time.value} in ${part2Time.duration}")
+fun main() {
+    Day03().runTest()
 }
